@@ -1,0 +1,10 @@
+node_modules/
+.env
+*.log
+.DS_Store
+
+# 第三方品牌資產（WCA Design System）——本地參考用，不進公開 repo
+WCA design system/
+
+# Claude Code 工作階段狀態（非專案程式）
+.claude/

@@ -1,0 +1,21 @@
+{
+  "name": "your-assist",
+  "version": "0.1.0",
+  "description": "可自架的個人 LINE AI 助理框架（行事曆 / 人脈 / 記憶 / 待辦，能力可插拔）",
+  "main": "index.js",
+  "type": "module",
+  "scripts": {
+    "start": "node index.js",
+    "dev": "node --watch index.js"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "^0.69.0",
+    "@line/bot-sdk": "^9.5.0",
+    "express": "^4.21.2",
+    "googleapis": "^173.0.0",
+    "ical-expander": "^3.2.0"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}
