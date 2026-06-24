@@ -89,8 +89,8 @@ npm run dev
 
 到 `/settings` ② 區會看到每個可連結系統的卡片（已連 / 未連 / 缺哪些變數）。連上哪個，對應能力就開。
 
-### 5a. Google（行事曆 + 記憶 + 待辦 + Coach）
-連一個 Google 帳號，一次開通行事曆/會議室、長期記憶、待辦、Coach Inbox（資料都存你自己的 Google）。
+### 5a. Google（行事曆 + 記憶 + 待辦）
+連一個 Google 帳號，一次開通行事曆/會議室、長期記憶、待辦（資料都存你自己的 Google）。
 
 1. [Google Cloud Console](https://console.cloud.google.com/) → 建專案 → 啟用 **Google Calendar API** 與 **Google Sheets API**。
 2. 建 **OAuth 2.0 用戶端 ID**（類型：網頁應用程式），授權重新導向 URI 填 `https://你的網域/oauth/callback`。
@@ -98,7 +98,7 @@ npm run dev
 4. 瀏覽器開 `https://你的網域/oauth/connect?key=你的SETUP_KEY` → 授權 → 頁面給你一串 **refresh token**。
 5. 把它設成 `GOOGLE_REFRESH_TOKEN`，重啟 → 行事曆能力開了。
 6. 開 `https://你的網域/setup/memory?key=你的SETUP_KEY` → 自動幫你建一張記憶試算表，回傳一個 ID。
-7. 把它設成 `MEMORY_SPREADSHEET_ID`，重啟 → 長期記憶 / 待辦 / Coach Inbox / 設定頁存檔 都開了。
+7. 把它設成 `MEMORY_SPREADSHEET_ID`，重啟 → 長期記憶 / 待辦 / 設定頁存檔 都開了。
 
 > 會議室快捷：開 `/setup/rooms?key=SETUP_KEY` 可挖出你用過的會議室資源 email，填到 `/settings` ③ 區。
 
@@ -144,7 +144,7 @@ npm run dev
 | `ASSISTANT_NAME` / `OWNER_NAME` | 建議 | 助理名 / 主人稱呼 |
 | `SETUP_KEY` | 建議 | 保護 /settings 與 setup 路由 |
 | `GOOGLE_OAUTH_CLIENT_ID` / `_SECRET` / `GOOGLE_REFRESH_TOKEN` | 選 | 行事曆 |
-| `MEMORY_SPREADSHEET_ID` | 選 | 記憶 / 待辦 / Coach / 設定頁存檔 |
+| `MEMORY_SPREADSHEET_ID` | 選 | 記憶 / 待辦 / 設定頁存檔 |
 | `CONNECTOME_EMAIL` / `CONNECTOME_PASSWORD` | 選 | 人脈管理 |
 | `MYWIKI_BASE_URL` / `MYWIKI_API_KEY` | 選 | 決策日誌 / 知識庫 |
 | `OPENAI_API_KEY` | 選 | 語音轉文字 |

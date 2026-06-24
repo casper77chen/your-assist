@@ -15,7 +15,6 @@
 | 📅 行事曆 / 會議室 / 邀請與會者 | **Google** | `/oauth/connect` 授權 |
 | 🧠 長期記憶（越用越懂你） | **Google**（OAuth + 試算表） | `/setup/memory` 建表 |
 | ✅ 待辦清單 | **Google**（共用試算表） | 首次使用自動建分頁 |
-| 🎓 Coach Inbox（coaching 速記） | **Google**（共用試算表） | 首次使用自動建分頁 |
 | 👥 人脈管理（找人 / 互動 / 跟進 / 組織） | **Connectome** | `/setup/connectome` 驗證帳密 |
 | 📚 決策日誌 / 知識庫問答 | **MyWiki** | 設 `MYWIKI_*`（⚠️ 見下方注意） |
 | 🎙️ 語音訊息轉文字 | **OpenAI（Whisper）** | 設 `OPENAI_API_KEY` |
@@ -28,7 +27,7 @@
 ## 二、最省力的接法（階梯式）
 
 1. **核心** — `LINE_CHANNEL_SECRET`/`LINE_CHANNEL_ACCESS_TOKEN` + `ANTHROPIC_API_KEY` + `ASSISTANT_NAME`/`OWNER_NAME` → 會聊天的助理。
-2. **連 Google（CP 值最高）** — `/oauth/connect` 拿 `GOOGLE_REFRESH_TOKEN`，再 `/setup/memory` 建試算表設 `MEMORY_SPREADSHEET_ID`。**一次開通：行事曆 + 長期記憶 + 待辦 + Coach Inbox + 推播基礎**（一半以上功能在這一步）。
+2. **連 Google（CP 值最高）** — `/oauth/connect` 拿 `GOOGLE_REFRESH_TOKEN`，再 `/setup/memory` 建試算表設 `MEMORY_SPREADSHEET_ID`。**一次開通：行事曆 + 長期記憶 + 待辦 + 推播基礎**（一半以上功能在這一步）。
 3. **連 Connectome** — 填 `CONNECTOME_EMAIL` / `CONNECTOME_PASSWORD` → 人脈管理。
 4. **連 OpenAI** — 設 `OPENAI_API_KEY` → 語音速記。
 5. **開主動推播** — 傳訊息給 bot → 開 `/brief?key=SETUP_KEY` 查出你的 LINE userId → 設 `OWNER_LINE_USER_ID`（可選 `BRIEFING_TIME` / `WEEKLY_TIME`）。
@@ -37,11 +36,10 @@
 
 ---
 
-## 三、三個要注意的點 ⚠️
+## 三、兩個要注意的點 ⚠️
 
 1. **MyWiki 不只是填一把 API key** — 它是**另一個要自己部署的獨立專案**（不在這個 repo）。沒有自己的 MyWiki 部署就先跳過：框架預設關閉知識庫，不影響其他功能（連 system prompt 都不會提它）。
 2. **Connectome 需要帳號** — 它是特定的人脈管理 App，要有 Connectome 帳號才連得上。沒有的人先不開人脈，或日後替框架加別的 CRM 連接器（contacts adapter 已預留，見 `contacts.js` 的 `PROVIDERS`）。
-3. **Coach Inbox 的「電腦端歸檔系統」是原作者專屬** — 框架只提供「把 coaching 速記收進試算表」這段；下游那套 Coach 管理系統不在框架內。
 
 ---
 

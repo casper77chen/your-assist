@@ -18,7 +18,7 @@ npx zeabur@latest deploy --project-id 6a3b2d2ce41f9f1d1930387e --service-id 6a3b
 
 ## 核心設計
 
-- **能力即外掛**：每個模組（calendar / contacts / memory / coach / wiki / todos）由它自己的 `xxxConfigured`（=需要的 env 有沒有填）決定啟用。`TOOLS` 與 system prompt 依啟用的能力動態組裝。缺能力不該讓服務壞掉。
+- **能力即外掛**：每個模組（calendar / contacts / memory / wiki / todos）由它自己的 `xxxConfigured`（=需要的 env 有沒有填）決定啟用。`TOOLS` 與 system prompt 依啟用的能力動態組裝。缺能力不該讓服務壞掉。
 - **身分即設定**：助理名 / 主人稱呼 / 口吻 / 簡稱 → `profile.js`（讀 `ASSISTANT_NAME` / `OWNER_NAME` / `OWNER_NICKNAME` / `ASSISTANT_PERSONA` / `OWNER_ABBREVIATIONS`）。
 - **人脈綁 Connectome**，但上層走 contacts adapter 介面（M4）。
 - **知識庫（MyWiki）預設關閉**：沒設 `MYWIKI_*` 時工具不註冊、prompt 不提、記憶路由自動降路。

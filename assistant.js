@@ -29,7 +29,6 @@ import {
   addPersonToOrganization,
   syncPeople,
 } from "./contacts.js";
-import { coachConfigured, logCoachNote, listCoachNotes } from "./coach.js";
 import { sessionConfigured, loadSession, saveSession } from "./session.js";
 import { recordTranscript } from "./transcript.js";
 import { mywikiConfigured, sendToWiki, askWiki } from "./mywiki.js";
@@ -416,48 +415,11 @@ const TOOLS = [
     },
   },
   {
-    name: "coach_log",
-    description:
-      "把 Casper 的一筆 coaching／輔導／mentoring 速記存進 Coach Inbox（Google Sheets 收件匣，之後由電腦端的 Coach 管理系統歸檔）。" +
-      "當 Casper 說「記錄 coaching」「輔導紀錄」或描述他幫某位對象上完 session 的內容時使用。" +
-      "【界線】這不是 Connectome 互動——coaching 內容不要用 log_interaction，也不要用 remember。內容原封不動存入，不要改寫或摘要。",
-    input_schema: {
-      type: "object",
-      properties: {
-        person: {
-          type: "string",
-          description: "coaching 對象的姓名，例如「王小明」",
-        },
-        content: {
-          type: "string",
-          description: "速記原文，保留 Casper 的原話，不要摘要或改寫",
-        },
-        session_date: {
-          type: "string",
-          description:
-            "session 日期 YYYY-MM-DD（可選）。Casper 沒講就不要帶，預設今天；講「昨天」就換算成日期。",
-        },
-      },
-      required: ["person", "content"],
-    },
-  },
-  {
-    name: "coach_list",
-    description:
-      "列出 Coach Inbox 裡最近的 coaching 速記。Casper 問「我最近記了哪些 coaching」「coach inbox 有什麼」時使用。",
-    input_schema: {
-      type: "object",
-      properties: {
-        limit: { type: "integer", description: "要列出的筆數，預設 10" },
-      },
-    },
-  },
-  {
     name: "log_decision",
     description:
       "把 Casper 的一個決策（或值得進知識庫的重要內容）送進他的個人知識庫 MyWiki。MyWiki 會在背景自動抽實體、建決策頁、偵測與舊決策的衝突。" +
       "當 Casper 說「我決定…」「拍板了」或要你「記進知識庫」時使用。text 請整理成結構化格式（# 決策：標題／決策日期／決策內容／為什麼／考慮過的替代方案／參與者）。" +
-      "【界線】這不是 remember（個人偏好）也不是 coach_log（coaching 速記）——決策與知識內容才走這裡。",
+      "【界線】這不是 remember（個人偏好）——決策與知識內容才走這裡。",
     input_schema: {
       type: "object",
       properties: {
@@ -551,8 +513,6 @@ const TOOL_CAPABILITY = {
   create_relationship: "contacts",
   tag_person: "contacts",
   add_to_organization: "contacts",
-  coach_log: "coach",
-  coach_list: "coach",
   log_decision: "wiki",
   ask_wiki: "wiki",
   add_todo: "todos",
@@ -565,7 +525,6 @@ function capabilityEnabled() {
     calendar: calendarConfigured,
     memory: memoryConfigured,
     contacts: contactsConfigured,
-    coach: coachConfigured,
     wiki: mywikiConfigured,
     todos: todosConfigured,
   };
@@ -687,29 +646,6 @@ async function runTool(name, input, userId) {
     return removed
       ? `已刪除記憶：${removed.content}`
       : `找不到編號 ${input.memory_id} 的記憶。`;
-  }
-
-  // ── Coach Inbox（coaching 速記收件匣）─────────────────────
-  if (name === "coach_log") {
-    if (!coachConfigured) {
-      return "Coach Inbox 還沒設定好（缺記憶試算表設定），請告知使用者稍後再試。";
-    }
-    const n = await logCoachNote(input.person, input.content, input.session_date);
-    return `已存進 Coach Inbox：${n.person}（session 日期 ${n.sessionDate}）。內容已原文保存，等 ${ownerName()} 回到電腦由 Coach 管理系統歸檔。`;
-  }
-  if (name === "coach_list") {
-    if (!coachConfigured) {
-      return "Coach Inbox 還沒設定好（缺記憶試算表設定）。";
-    }
-    const notes = await listCoachNotes(input.limit || 10);
-    if (!notes.length) return "Coach Inbox 目前是空的。";
-    const lines = notes
-      .map(
-        (x) =>
-          `- ${x.sessionDate}｜${x.person}｜${x.content.slice(0, 50)}${x.content.length > 50 ? "…" : ""}（${x.status}）`
-      )
-      .join("\n");
-    return `Coach Inbox 最近 ${notes.length} 筆：\n${lines}`;
   }
 
   // ── MyWiki（決策日誌／個人知識庫）──────────────────────────
@@ -1115,7 +1051,7 @@ async function handleCommand(userId, text) {
         "🦞 77 能幫你：",
         "・📅 行程：查你今天/這週行程、訂會議室、查 SPACE 課表、建行程邀人",
         "・👥 人脈：找人/建檔/記互動/看該跟進的人（Connectome）",
-        "・🧠 記憶：記你的偏好、存決策進知識庫、Coach 速記",
+        "・🧠 記憶：記你的偏好、存決策進知識庫",
         "・☑️ 待辦：新增/列出/完成（有到期日）",
         "・📨 主動推播：每日晨報、週回顧、會前背景、會後追蹤",
         "完整清單 👉 https://casper-assist.zeabur.app/help",

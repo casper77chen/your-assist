@@ -13,7 +13,6 @@ import { contactsConfigured, contactsProvider } from "./contacts.js";
 import { calendarConfigured } from "./calendar.js";
 import { memoryConfigured } from "./memory.js";
 import { todosConfigured } from "./todos.js";
-import { coachConfigured } from "./coach.js";
 import { mywikiConfigured } from "./mywiki.js";
 import { transcribeConfigured } from "./transcribe.js";
 
@@ -39,8 +38,8 @@ export const CONNECTORS = [
     name: "Google（Calendar + Sheets）",
     category: "行事曆・記憶・待辦",
     blurb:
-      "連上 Google 帳號，一次開通：行事曆/會議室、長期記憶、待辦、Coach Inbox。資料都存在你自己的 Google。",
-    enables: ["行事曆 / 會議室", "長期記憶", "待辦", "Coach Inbox"],
+      "連上 Google 帳號，一次開通：行事曆/會議室、長期記憶、待辦。資料都存在你自己的 Google。",
+    enables: ["行事曆 / 會議室", "長期記憶", "待辦"],
     requires: [
       "GOOGLE_OAUTH_CLIENT_ID",
       "GOOGLE_OAUTH_CLIENT_SECRET",
@@ -50,11 +49,10 @@ export const CONNECTORS = [
     setupPath: "/oauth/connect",
     setupLabel: "授權 Google",
     connected: () => calendarConfigured,
-    // 子能力狀態（行事曆連上但記憶/待辦/Coach 還需要 MEMORY_SPREADSHEET_ID）
+    // 子能力狀態（行事曆連上但記憶/待辦還需要 MEMORY_SPREADSHEET_ID）
     note: () => {
       if (!calendarConfigured) return "";
-      const extra = memoryConfigured ? "記憶/待辦/Coach 已開" : "記憶/待辦/Coach 還缺 MEMORY_SPREADSHEET_ID";
-      return extra;
+      return memoryConfigured ? "記憶/待辦 已開" : "記憶/待辦 還缺 MEMORY_SPREADSHEET_ID";
     },
   },
   {

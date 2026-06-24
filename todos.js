@@ -1,6 +1,6 @@
 // Phase 8：待辦清單（介於日曆與長期記憶之間的「要做的事」）
 // 共用「77 記憶庫」試算表（MEMORY_SPREADSHEET_ID），新增分頁 todos。
-// 模式複製自 coach.js：首次使用自動建分頁，免 setup、免新環境變數。
+// 模式同 session.js：首次使用自動建分頁，免 setup、免新環境變數。
 import { google } from "googleapis";
 import { getAuthClient, calendarConfigured } from "./calendar.js";
 

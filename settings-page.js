@@ -328,7 +328,7 @@ const GUIDE_STEPS = [
     no: "05",
     eyebrow: "Connectors",
     title: "逐步連上能力",
-    body: "在設定頁②的連接器卡片，連 Google（行事曆/記憶/待辦/Coach）、Connectome（人脈管理），其他陸續擴充。連上哪個，能力就開。",
+    body: "在設定頁②的連接器卡片，連 Google（行事曆/記憶/待辦）、Connectome（人脈管理），其他陸續擴充。連上哪個，能力就開。",
   },
   {
     no: "06",

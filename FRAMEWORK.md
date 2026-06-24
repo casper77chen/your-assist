@@ -11,7 +11,7 @@
 ## 設計原則
 
 1. **能力即外掛（capability = pluggable adapter）**
-   每個模組（calendar / contacts / memory / coach / wiki / todos…）是一個能力。
+   每個模組（calendar / contacts / memory / wiki / todos…）是一個能力。
    啟用與否只看它的 `xxxConfigured`（=該模組需要的環境變數有沒有填）。
    - 工具清單（`TOOLS`）與 system prompt 都**依啟用的能力動態組裝**。
    - 一份只填了 LINE + Anthropic 的全新部署 → 自動退化成「純聊天（＋有 Google 就加行事曆）」，缺模組不會壞。
@@ -73,7 +73,7 @@
   - 驗證：`node --check` 全過；開 contacts → provider=Connectome、findPeople 為函式、10 工具、prompt 有人脈段；關 contacts → 0 工具、無人脈段。
   - ⏭ 未來換 CRM：新增一個 provider 模組實作那組函式、在 `PROVIDERS` 註冊即可，上層零改動。介面函式名目前沿用 Connectome 語意（createInteraction 等），日後可再抽成中性動詞。
 - [x] **M4.5 — 連接器（Connector）框架**
-  - [x] `connectors.js`：把每個可連結的外部系統做成一張「卡」（Connectome 人脈 / Google 行事曆+記憶+待辦+Coach / MyWiki / OpenAI 語音）。以「要連的外部帳號」為粒度；`listConnectors()` 附即時連線狀態與「還缺哪些環境變數」。新增連接器只加一筆。
+  - [x] `connectors.js`：把每個可連結的外部系統做成一張「卡」（Connectome 人脈 / Google 行事曆+記憶+待辦 / MyWiki / OpenAI 語音）。以「要連的外部帳號」為粒度；`listConnectors()` 附即時連線狀態與「還缺哪些環境變數」。新增連接器只加一筆。
   - [x] 設定頁 ②「Connectors / 連接器」區：每張卡顯示已連/未連、開通什麼、缺哪些 env、連結到 setup 路由（Connectome→/setup/connectome 驗證、Google→/oauth/connect 授權）。
   - 驗證：渲染測試卡片狀態正確（連 Connectome、其餘列缺項）、連結帶 key、無 Casper。
   - ⏭ 待決：目前「連結」=設環境變數後驗證。要不要做「在網頁直接輸入憑證、存進 settings」的一鍵連結？牽涉把 secret 存進 Google Sheet 的安全取捨，下一步問。

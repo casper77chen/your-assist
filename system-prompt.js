@@ -18,7 +18,6 @@ import { shortcutsPromptSection } from "./shortcuts.js";
 import { calendarConfigured } from "./calendar.js";
 import { memoryConfigured } from "./memory.js";
 import { contactsConfigured } from "./contacts.js";
-import { coachConfigured } from "./coach.js";
 import { mywikiConfigured } from "./mywiki.js";
 import { todosConfigured } from "./todos.js";
 
@@ -27,7 +26,6 @@ function routingDefault() {
   const routes = [];
   if (contactsConfigured) routes.push("別人的資料（聯絡人、互動、關係）→ 人脈庫（Connectome）");
   if (memoryConfigured) routes.push("你自己（主人本人）的偏好習慣 → remember（長期記憶）");
-  if (coachConfigured) routes.push("coaching／輔導／mentoring 速記 → coach_log（Coach Inbox）");
   if (mywikiConfigured) routes.push("決策與知識內容 → log_decision（知識庫）");
   if (routes.length < 2) return ""; // 少於兩條沒有「分流」可言，不放這塊
   const owner = ownerName();
@@ -129,17 +127,6 @@ export const BLOCKS = [
   },
 
   {
-    key: "cap_coach",
-    title: "能力：Coach Inbox（coaching 速記）",
-    enabled: () => coachConfigured,
-    def: () => {
-      const owner = ownerName();
-      return `能力（Coach Inbox）：${owner} 是很多人的教練／顧問／mentor。他結束一場 coaching 後會用 LINE 丟速記給你——用 coach_log 把速記存進 Coach Inbox（之後由他電腦上的 Coach 管理系統歸檔成正式紀錄），用 coach_list 列出最近的速記。
-- 觸發：${owner} 說「記錄 coaching／輔導／mentoring」或描述他幫某對象上 session 的內容時，走 coach_log，**不要** log_interaction 也不要 remember。coaching 內容敏感，是否同步進人脈庫由電腦端決定，你只負責收進 Coach Inbox。存好用一句話回報（例如「（已收進 Coach Inbox：王小明 6/12）」）。分不清是 coaching 還是一般見面時，問 ${owner}。`;
-    },
-  },
-
-  {
     key: "cap_wiki",
     title: "能力：決策日誌／知識庫（log_decision / ask_wiki）",
     enabled: () => mywikiConfigured,
@@ -185,7 +172,6 @@ export const BLOCKS = [
       const board = (() => {
         const targets = [];
         if (mywikiConfigured) targets.push("值得進知識庫的（會議結論、策略）→ log_decision");
-        if (coachConfigured) targets.push("coaching 場合的 → coach_log");
         const tail = targets.length
           ? `，然後問一句要不要存——${targets.join("；")}；他說不用就算了。`
           : "。";

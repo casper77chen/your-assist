@@ -4,7 +4,6 @@
 import { calendarConfigured, listMergedEvents } from "./calendar.js";
 import { contactsConfigured, getInteractions } from "./contacts.js";
 import { todosConfigured, listTodos } from "./todos.js";
-import { coachConfigured, listCoachNotes } from "./coach.js";
 
 const TZ = "Asia/Taipei";
 const WEEKLY_TIME = process.env.WEEKLY_TIME || "21:00";
@@ -68,20 +67,6 @@ export async function buildWeeklyReview() {
       }
     } catch (e) {
       sections.push(`🤝 互動統計失敗（${e.message}）`);
-    }
-  }
-
-  // 本週 coaching
-  if (coachConfigured) {
-    try {
-      const notes = await listCoachNotes(200);
-      const week = notes.filter((n) => n.sessionDate >= monday && n.sessionDate <= date);
-      if (week.length) {
-        const people = [...new Set(week.map((n) => n.person))];
-        sections.push(`🎓 coaching ${week.length} 場（${people.join("、")}）`);
-      }
-    } catch (e) {
-      sections.push(`🎓 coaching 統計失敗（${e.message}）`);
     }
   }
 

@@ -35,12 +35,6 @@ import {
   deletePerson,
   getInteractions,
 } from "./connectome.js";
-import {
-  coachConfigured,
-  listCoachNotes,
-  saveDashboard,
-  loadDashboard,
-} from "./coach.js";
 import { buildBriefing, startBriefingScheduler } from "./briefing.js";
 import { startMeetingWatcher } from "./meetwatch.js";
 import { buildWeeklyReview, startWeeklyScheduler } from "./weekly.js";
@@ -103,8 +97,6 @@ app.get("/help", (_req, res) => {
     sections.push(["長期記憶", ["記住你的偏好與習慣，越用越懂你"]]);
   if (todosConfigured)
     sections.push(["待辦", ["新增 / 列出 / 完成待辦（可帶到期日）"]]);
-  if (coachConfigured)
-    sections.push(["Coach Inbox", ["丟 coaching 速記，回電腦端歸檔"]]);
   if (mywikiConfigured)
     sections.push(["決策日誌 / 知識庫", ["記下決策＋為什麼，事後可問知識庫"]]);
   const multimodal = ["PDF 摘要（合約抓錢 / 期限 / 條款）", "白板 / 簡報照片整理重點"];
@@ -507,74 +499,6 @@ ${
     }
   }
 );
-
-// Coach Inbox 唯讀端點：/coach/inbox?key=SETUP_KEY
-// 給電腦端的「Coach 管理」系統（Cowork/Claude）讀取待歸檔的 coaching 速記。
-// 只讀不寫；歸檔進度由電腦端自己記錄。
-app.get("/coach/inbox", async (req, res) => {
-  if (!requireSetupKey(req, res)) return;
-  if (!coachConfigured) {
-    return res
-      .status(400)
-      .json({ success: false, message: "Coach Inbox 尚未設定（缺 MEMORY_SPREADSHEET_ID 或 Google 授權）" });
-  }
-  try {
-    const limit = Math.min(parseInt(req.query.limit, 10) || 50, 200);
-    const notes = await listCoachNotes(limit);
-    // 用 HTML <pre> 包 JSON：讀取端（Claude 的 web_fetch）只渲染 HTML
-    const json = JSON.stringify({ success: true, count: notes.length, data: notes }, null, 2);
-    const escaped = json.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
-    res.type("html").send(`<pre>${escaped}</pre>`);
-  } catch (e) {
-    console.error("coach/inbox 失敗：", e);
-    const json = JSON.stringify({ success: false, message: e.message });
-    res.status(500).type("html").send(`<pre>${json.replace(/</g, "&lt;")}</pre>`);
-  }
-});
-
-// Coach Dashboard：電腦端推送 + 手機瀏覽
-// POST /coach/dashboard?key=SETUP_KEY（body = dashboard.html 原文）→ 存進試算表
-// GET  /coach/dashboard?key=SETUP_KEY → 回最新的 dashboard 網頁（手機存書籤用）
-app.post(
-  "/coach/dashboard",
-  express.text({ type: "*/*", limit: "10mb" }),
-  async (req, res) => {
-    if (!requireSetupKey(req, res)) return;
-    if (!coachConfigured) {
-      return res.status(400).send("Coach Dashboard 尚未設定（缺 MEMORY_SPREADSHEET_ID 或 Google 授權）");
-    }
-    try {
-      const html = typeof req.body === "string" ? req.body : "";
-      if (!html.includes("<html")) {
-        return res.status(400).send("body 看起來不是 HTML");
-      }
-      const r = await saveDashboard(html);
-      res.send(`OK：已更新雲端 dashboard（${r.bytes} bytes，${r.chunks} chunks）`);
-    } catch (e) {
-      console.error("coach/dashboard POST 失敗：", e);
-      res.status(500).send("更新失敗：" + e.message);
-    }
-  }
-);
-
-app.get("/coach/dashboard", async (req, res) => {
-  if (!requireSetupKey(req, res)) return;
-  if (!coachConfigured) {
-    return res.status(400).send("Coach Dashboard 尚未設定（缺 MEMORY_SPREADSHEET_ID 或 Google 授權）");
-  }
-  try {
-    const html = await loadDashboard();
-    if (!html) {
-      return res
-        .type("html")
-        .send("<pre>雲端還沒有 dashboard。請在電腦端跑一次「同步Connectome.command」推送。</pre>");
-    }
-    res.type("html").send(html);
-  } catch (e) {
-    console.error("coach/dashboard GET 失敗：", e);
-    res.status(500).send("讀取失敗：" + e.message);
-  }
-});
 
 // 晨報：GET /brief?key=SETUP_KEY → 立刻組一份並推到 LINE（測試／補發用）
 app.get("/brief", async (req, res) => {

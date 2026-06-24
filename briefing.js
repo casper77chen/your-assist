@@ -5,7 +5,6 @@
 import { calendarConfigured, listMergedEvents } from "./calendar.js";
 import { contactsConfigured, upcomingFollowups } from "./contacts.js";
 import { todosConfigured, listTodos } from "./todos.js";
-import { coachConfigured, listCoachNotes } from "./coach.js";
 import { ownerNickname } from "./profile.js";
 
 const TZ = "Asia/Taipei";
@@ -109,18 +108,6 @@ export async function buildBriefing() {
     }
   }
 
-  // Coach Inbox 未歸檔
-  if (coachConfigured) {
-    try {
-      const notes = await listCoachNotes(200);
-      const fresh = notes.filter((n) => n.status === "new").length;
-      if (fresh > 0) {
-        sections.push(`🎓 Coach Inbox 有 ${fresh} 筆速記待歸檔（回電腦記得跑歸檔）`);
-      }
-    } catch (e) {
-      sections.push(`🎓 Coach Inbox 讀取失敗（${e.message}）`);
-    }
-  }
 
   return sections.join("\n\n");
 }
