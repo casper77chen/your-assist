@@ -49,6 +49,7 @@ import { assistantName, ownerName } from "./profile.js";
 import { contactsConfigured } from "./contacts.js";
 import { todosConfigured } from "./todos.js";
 import { mywikiConfigured } from "./mywiki.js";
+import { checkDemoLimit, countDemoUse, demoLimitMessage, demoLimitOn } from "./demo-limit.js";
 import { renderSettingsPage, applySettings, renderGuidePage } from "./settings-page.js";
 
 const { MessagingApiClient } = messagingApi;
@@ -912,6 +913,18 @@ async function handleEvent(event) {
       : event.message.type === "file"
       ? `（傳了檔案：${event.message.fileName || "檔案"}）`
       : "（語音訊息）";
+
+  // Demo 用量護欄：超過每日上限就婉拒（保護那把付費 key），不呼叫 Claude
+  const gate = checkDemoLimit(userId);
+  if (!gate.allowed) {
+    const msg = demoLimitMessage(gate);
+    recordTranscript(ownerName(), inboundLog);
+    await sendReply(event, userId, msg);
+    recordTranscript(assistantName(), msg);
+    return;
+  }
+  countDemoUse(userId);
+
   try {
     if (event.message.type === "image") {
       const { base64, mediaType } = await downloadLineContent(
@@ -992,6 +1005,7 @@ app.listen(port, () => {
     .then(() => console.log("⚙️ settings 覆寫已載入"))
     .catch((e) => console.error("⚠️ settings 載入失敗，先用 env/預設：", e.message));
   console.log(`✅ ${assistantName()} 啟動，listening on ${port}`);
+  if (demoLimitOn) console.log("🎟️ Demo 用量護欄已啟用（每日上限）");
   if (briefingUserId) {
     const push = async (text) =>
       client.pushMessage({
