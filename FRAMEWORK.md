@@ -89,6 +89,7 @@
 
 - [ ] **M7 — 知識庫 provider 化 + Obsidian capture**（規劃中，先別動手；等「同步後端」拍板再開工）
   - **provider 抽象** `knowledge.js`（複用 contacts adapter 模式）：`PROVIDERS = { mywiki（capture+query）, obsidian（capture；query 之後）, none（預設關閉） }`，用 env `KNOWLEDGE_PROVIDER` 選。上層工具/prompt 只依賴介面。
+  - **二選一（已拍板）**：每個部署同時只接一個知識庫。偵測哪個 provider 的環境變數有填就用哪個；兩個都填時用 `KNOWLEDGE_PROVIDER` 決勝。v1 不支援「同時接兩個」（之後真有需求再擴充 capture 寫兩邊 / query 問兩邊）。設定頁 MyWiki 與 Obsidian 各一張卡，呈現為「擇一連結」。
   - **工具改名（通用化，已拍板）**：`log_decision` → **`save_note`**、`ask_wiki` → **`search_notes`**。provider 不支援 query 時 `search_notes` 不註冊；system prompt 那塊從「決策日誌」泛化成「筆記/知識捕捉」。MyWiki 實作仍可把內容整理成它的決策格式。
   - **Obsidian provider = 同步後端 + capture**：因碰不到本機 Obsidian，須透過 vault 同步的雲端讀寫 `.md`。後端選項：Google Drive（傾向，複用既有 OAuth + 加 Drive scope）/ GitHub（Obsidian Git）/ Dropbox。⏳ **待 Casper 拍板**。
   - **capture 細節待定**：一則一檔 vs append 進當日 daily note、放哪個資料夾（如 `Inbox/`）、要不要 frontmatter（date/source:LINE/tags）、檔名規則。
