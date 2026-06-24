@@ -5,6 +5,17 @@
 
 > ⚠️ 這是**框架**，不是某個人的部署。程式碼裡不寫死任何人的名字、公司、Zeabur 專案 ID、會議室或聯絡人——這些都走環境變數 / `profile.js` / `shortcuts.js`。改 code 時若發現又冒出 Casper/dentall 之類私有字串，就是還沒框架化乾淨，要抽掉。
 
+## Zeabur 部署（本 fork 的參考部署；自己 fork 請換成你自己的）
+- Project ID: `6a3b2d2ce41f9f1d1930387e`
+- Service ID: `6a3b2d35e41f9f1d19303880`
+- Server: Side_Project_A（Tokyo, server-69dc91575e919a56062ba518）
+
+重新部署（務必帶 --service-id，否則會建重複服務）：
+```bash
+npx zeabur@latest deploy --project-id 6a3b2d2ce41f9f1d1930387e --service-id 6a3b2d35e41f9f1d19303880 --json
+```
+部署後要在 Zeabur 設環境變數（至少 `LINE_CHANNEL_SECRET`/`LINE_CHANNEL_ACCESS_TOKEN`/`ANTHROPIC_API_KEY`/`ASSISTANT_NAME`/`OWNER_NAME`/`SETUP_KEY`）並綁網域，webhook 指向 `https://網域/webhook`。完整步驟見 [ONBOARDING.md](./ONBOARDING.md)。
+
 ## 核心設計
 
 - **能力即外掛**：每個模組（calendar / contacts / memory / coach / wiki / todos）由它自己的 `xxxConfigured`（=需要的 env 有沒有填）決定啟用。`TOOLS` 與 system prompt 依啟用的能力動態組裝。缺能力不該讓服務壞掉。
