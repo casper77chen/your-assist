@@ -87,6 +87,13 @@
   - [x] `ONBOARDING.md`：「從零部署你自己的助理」逐步（Step 1 拿 LINE+Anthropic 金鑰 → 2 部署+env → 3 接 webhook → 4 改名換口吻 → 5 連接器 Google/Connectome/其他 → 6 推播），含常見問題 + 環境變數總覽表。對齊實際 env 與 setup 路由。
   - [x] README 連到 ONBOARDING。
 
+- [ ] **M7 — 知識庫 provider 化 + Obsidian capture**（規劃中，先別動手；等「同步後端」拍板再開工）
+  - **provider 抽象** `knowledge.js`（複用 contacts adapter 模式）：`PROVIDERS = { mywiki（capture+query）, obsidian（capture；query 之後）, none（預設關閉） }`，用 env `KNOWLEDGE_PROVIDER` 選。上層工具/prompt 只依賴介面。
+  - **工具改名（通用化，已拍板）**：`log_decision` → **`save_note`**、`ask_wiki` → **`search_notes`**。provider 不支援 query 時 `search_notes` 不註冊；system prompt 那塊從「決策日誌」泛化成「筆記/知識捕捉」。MyWiki 實作仍可把內容整理成它的決策格式。
+  - **Obsidian provider = 同步後端 + capture**：因碰不到本機 Obsidian，須透過 vault 同步的雲端讀寫 `.md`。後端選項：Google Drive（傾向，複用既有 OAuth + 加 Drive scope）/ GitHub（Obsidian Git）/ Dropbox。⏳ **待 Casper 拍板**。
+  - **capture 細節待定**：一則一檔 vs append 進當日 daily note、放哪個資料夾（如 `Inbox/`）、要不要 frontmatter（date/source:LINE/tags）、檔名規則。
+  - **分段**：v1 只做 capture（最通用：LINE → markdown 進 vault）；v2 才做 query（讀 vault md 餵 Claude，比 MyWiki RAG 陽春）。MyWiki 的抽實體/衝突偵測維持 MyWiki 專屬，不移植。
+
 ---
 
 ## 進度註記
