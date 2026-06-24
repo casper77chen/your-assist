@@ -5,6 +5,8 @@
 > 這是 `Casper_Assist`（一個實際在跑的私人助理）的框架化版本。設計理念與改造進度見 [FRAMEWORK.md](./FRAMEWORK.md)。
 >
 > **要部署你自己的一台？** 跟著 [ONBOARDING.md](./ONBOARDING.md) 從零走一遍（先最小跑起來，再逐步連能力）。
+>
+> **想火力全開？** [FEATURES.md](./FEATURES.md) 是「功能 → 要連哪個連接器」的對照表。
 
 ## 能力是可插拔的
 
