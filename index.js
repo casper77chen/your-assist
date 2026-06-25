@@ -109,6 +109,16 @@ app.get("/help", (_req, res) => {
       "會議監看：會前推與會者背景、會後問要不要記互動",
     ]]);
 
+  // 「可擴充能力」：尚未連上的能力，列出來告訴使用者「連上就開」＋怎麼接。
+  // 這是框架的「連接器」故事——對 demo 也剛好用來展示知識庫等還沒接的能力。
+  const extras = [];
+  if (!calendarConfigured) extras.push("行程 / 日曆 / 會議室 → 連 Google");
+  if (!contactsConfigured) extras.push("人脈管理（找人 / 互動 / 跟進）→ 連 Connectome");
+  if (!memoryConfigured) extras.push("長期記憶 / 待辦 → 連 Google 試算表");
+  if (!knowledgeConfigured) extras.push("決策日誌 / 知識庫 → 串接 MyWiki 或 Obsidian");
+  if (!transcribeConfigured) extras.push("語音訊息轉文字 → 連 OpenAI（Whisper）");
+  if (extras.length) sections.push(["可擴充能力（連上就開）", extras]);
+
   const body = sections
     .map(
       ([title, items]) =>
@@ -136,7 +146,7 @@ ul{margin:0;padding-left:18px}li{margin:4px 0;color:#CBD5E1}
 .foot{color:#94A3B8;font-size:12px;margin-top:18px;text-align:center}
 </style></head><body>
 <h1>${name}・能力一覽</h1>
-<p class="sub">你的 LINE AI 助理目前會做的事（只列已連上的能力）</p>
+<p class="sub">你的 LINE AI 助理現在會做的事，以及還能連上哪些能力</p>
 ${body}
 <p class="foot">要改名字、口吻、規則或連結更多系統 → 開 /settings</p>
 </body></html>`);
