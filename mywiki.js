@@ -1,7 +1,8 @@
 // Phase 7：MyWiki 整合（Casper 的個人決策日誌／知識庫）
-// MyWiki 是獨立部署的知識系統（Next.js + PG），這裡只是它的 LINE 端 client：
-// - log_decision → POST /api/inbox：丟純文字進去，MyWiki 背景抽實體、建決策頁、偵測衝突
-// - ask_wiki    → POST /api/ask：RAG 問答，回答案＋來源 citations
+// MyWiki 是獨立部署的知識系統（Next.js + PG），這裡只是它的 LINE 端 client。
+// 這是 knowledge.js 的其中一個 provider；對外工具名是中性的 save_note / search_notes：
+// - sendToWiki（save_note）  → POST /api/inbox：丟純文字進去，MyWiki 背景抽實體、建決策頁、偵測衝突
+// - askWiki（search_notes）  → POST /api/ask：RAG 問答，回答案＋來源 citations
 const BASE_URL = (process.env.MYWIKI_BASE_URL || "").replace(/\/+$/, "");
 const API_KEY = process.env.MYWIKI_API_KEY || "";
 

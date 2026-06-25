@@ -14,6 +14,8 @@ import { calendarConfigured } from "./calendar.js";
 import { memoryConfigured } from "./memory.js";
 import { todosConfigured } from "./todos.js";
 import { mywikiConfigured } from "./mywiki.js";
+import { obsidianConfigured } from "./obsidian.js";
+import { knowledgeProvider } from "./knowledge.js";
 import { transcribeConfigured } from "./transcribe.js";
 
 const present = (k) => Boolean((process.env[k] || "").trim());
@@ -58,14 +60,27 @@ export const CONNECTORS = [
   {
     id: "mywiki",
     name: "MyWiki",
-    category: "決策日誌・知識庫",
+    category: "決策日誌・知識庫（二選一）",
     blurb:
-      "把決策與重要知識送進 MyWiki，事後可問「我當初為什麼決定…」。（選用）",
-    enables: ["決策日誌（log_decision）", "知識庫問答（ask_wiki）"],
+      "把決策與重要知識送進 MyWiki，事後可問「我當初為什麼決定…」（capture + 查詢）。知識庫二選一，與 Obsidian 擇一。",
+    enables: ["存筆記／決策（save_note）", "知識庫問答（search_notes）"],
     requires: ["MYWIKI_BASE_URL", "MYWIKI_API_KEY"],
     setupPath: null,
     connected: () => mywikiConfigured,
-    note: () => "",
+    note: () =>
+      knowledgeProvider === "mywiki" ? "目前生效的知識庫 provider" : "",
+  },
+  {
+    id: "obsidian",
+    name: "Obsidian（規劃中）",
+    category: "決策日誌・知識庫（二選一）",
+    blurb:
+      "把筆記寫進你的 Obsidian vault（透過 vault 同步的雲端後端）。知識庫二選一，與 MyWiki 擇一。v1 只做 capture。",
+    enables: ["存筆記／決策（save_note）"],
+    requires: [], // 同步後端（Google Drive / GitHub / Dropbox）拍板後補上對應 env
+    setupPath: null,
+    connected: () => obsidianConfigured,
+    note: () => "尚未開放：等同步後端拍板（Google Drive / GitHub / Dropbox）",
   },
   {
     id: "openai",

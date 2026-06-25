@@ -16,7 +16,7 @@
 | 🧠 長期記憶（越用越懂你） | **Google**（OAuth + 試算表） | `/setup/memory` 建表 |
 | ✅ 待辦清單 | **Google**（共用試算表） | 首次使用自動建分頁 |
 | 👥 人脈管理（找人 / 互動 / 跟進 / 組織） | **Connectome** | `/setup/connectome` 驗證帳密 |
-| 📚 決策日誌 / 知識庫問答 | **MyWiki** | 設 `MYWIKI_*`（⚠️ 見下方注意） |
+| 📚 決策日誌 / 知識庫問答 | **MyWiki 或 Obsidian（二選一）** | MyWiki：設 `MYWIKI_*`；Obsidian：規劃中（⚠️ 見下方注意） |
 | 🎙️ 語音訊息轉文字 | **OpenAI（Whisper）** | 設 `OPENAI_API_KEY` |
 | 📨 晨報 / 週回顧 / 會議監看推播 | 上面有連到的能力 + 收件人 | 設 `OWNER_LINE_USER_ID` |
 | 🗓️ 合併 Apple / iCloud 行事曆 | iCal（選用） | 設 `ICAL_FEED_URL` |
@@ -38,7 +38,10 @@
 
 ## 三、兩個要注意的點 ⚠️
 
-1. **MyWiki 不只是填一把 API key** — 它是**另一個要自己部署的獨立專案**（不在這個 repo）。沒有自己的 MyWiki 部署就先跳過：框架預設關閉知識庫，不影響其他功能（連 system prompt 都不會提它）。
+1. **知識庫是「二選一」的可插拔 provider**（`knowledge.js`，工具名中性化為 `save_note` / `search_notes`）：
+   - **MyWiki** — 但它是**另一個要自己部署的獨立專案**（不在這個 repo），有 capture + 查詢。沒有自己的 MyWiki 部署就先跳過。
+   - **Obsidian** — **規劃中，尚未開放**：Obsidian 無雲端 API，要透過 vault 同步的雲端後端（Google Drive / GitHub / Dropbox，後端尚未拍板）寫 `.md`，且 v1 只做存筆記、不支援查詢。
+   - 兩個都沒設＝框架預設關閉知識庫，不影響其他功能（連 system prompt 都不會提它）。要強制指定用哪個設 `KNOWLEDGE_PROVIDER`。
 2. **Connectome 需要帳號** — 它是特定的人脈管理 App，要有 Connectome 帳號才連得上。沒有的人先不開人脈，或日後替框架加別的 CRM 連接器（contacts adapter 已預留，見 `contacts.js` 的 `PROVIDERS`）。
 
 ---

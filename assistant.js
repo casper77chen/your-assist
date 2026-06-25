@@ -31,7 +31,13 @@ import {
 } from "./contacts.js";
 import { sessionConfigured, loadSession, saveSession } from "./session.js";
 import { recordTranscript } from "./transcript.js";
-import { mywikiConfigured, sendToWiki, askWiki } from "./mywiki.js";
+import {
+  knowledgeConfigured,
+  knowledgeCanSearch,
+  knowledgeLabel,
+  saveNote,
+  searchNotes,
+} from "./knowledge.js";
 import { todosConfigured, addTodo, listTodos, completeTodo } from "./todos.js";
 import { ownerName, assistantName } from "./profile.js";
 
@@ -415,17 +421,17 @@ const TOOLS = [
     },
   },
   {
-    name: "log_decision",
+    name: "save_note",
     description:
-      "把 Casper 的一個決策（或值得進知識庫的重要內容）送進他的個人知識庫 MyWiki。MyWiki 會在背景自動抽實體、建決策頁、偵測與舊決策的衝突。" +
-      "當 Casper 說「我決定…」「拍板了」或要你「記進知識庫」時使用。text 請整理成結構化格式（# 決策：標題／決策日期／決策內容／為什麼／考慮過的替代方案／參與者）。" +
+      "把 Casper 的一個決策（或值得進知識庫的重要內容：會議結論、策略想法）存進他的個人知識庫。" +
+      "當 Casper 說「我決定…」「拍板了」或要你「記進知識庫／存筆記」時使用。text 請整理成結構化格式（# 決策：標題／決策日期／決策內容／為什麼／考慮過的替代方案／參與者）。" +
       "【界線】這不是 remember（個人偏好）——決策與知識內容才走這裡。",
     input_schema: {
       type: "object",
       properties: {
         title: {
           type: "string",
-          description: "決策的一句話標題，例如「NeruMore 先不做 B2C」",
+          description: "決策／筆記的一句話標題，例如「NeruMore 先不做 B2C」",
         },
         text: {
           type: "string",
@@ -436,10 +442,10 @@ const TOOLS = [
     },
   },
   {
-    name: "ask_wiki",
+    name: "search_notes",
     description:
-      "問 Casper 的個人知識庫 MyWiki（RAG 問答，答案附來源）。當 Casper 問過往決策或知識庫內容——「我當初為什麼決定…」「○○定價多少」「之前那個案子怎麼談的」——時使用。" +
-      "查「人」的聯絡資料用 find_person（Connectome），查「決策／專案／文件內容」才用這個。",
+      "查 Casper 的個人知識庫（RAG 問答，答案附來源）。當 Casper 問過往決策或知識庫內容——「我當初為什麼決定…」「○○定價多少」「之前那個案子怎麼談的」——時使用。" +
+      "查「人」的聯絡資料用 find_person（人脈庫），查「決策／專案／文件內容」才用這個。",
     input_schema: {
       type: "object",
       properties: {
@@ -513,8 +519,8 @@ const TOOL_CAPABILITY = {
   create_relationship: "contacts",
   tag_person: "contacts",
   add_to_organization: "contacts",
-  log_decision: "wiki",
-  ask_wiki: "wiki",
+  save_note: "knowledge",
+  search_notes: "knowledge",
   add_todo: "todos",
   list_todos: "todos",
   complete_todo: "todos",
@@ -525,7 +531,7 @@ function capabilityEnabled() {
     calendar: calendarConfigured,
     memory: memoryConfigured,
     contacts: contactsConfigured,
-    wiki: mywikiConfigured,
+    knowledge: knowledgeConfigured,
     todos: todosConfigured,
   };
 }
@@ -543,6 +549,8 @@ export function buildTools() {
   const enabled = capabilityEnabled();
   const owner = ownerName();
   return TOOLS.filter((t) => {
+    // search_notes 只在「知識庫 provider 支援查詢」時暴露（Obsidian v1 只能 capture）
+    if (t.name === "search_notes" && !knowledgeCanSearch) return false;
     const cap = TOOL_CAPABILITY[t.name];
     return cap ? enabled[cap] : true; // 沒列在表內的工具（理論上不會有）預設保留
   }).map((t) => debrandTool(t, owner));
@@ -648,23 +656,27 @@ async function runTool(name, input, userId) {
       : `找不到編號 ${input.memory_id} 的記憶。`;
   }
 
-  // ── MyWiki（決策日誌／個人知識庫）──────────────────────────
-  if (name === "log_decision") {
-    if (!mywikiConfigured) {
-      return "知識庫（MyWiki）還沒設定好（缺 MYWIKI_BASE_URL / MYWIKI_API_KEY），請告知使用者稍後再試。";
+  // ── 知識庫（決策日誌／個人知識庫，provider 二選一：MyWiki / Obsidian）──
+  if (name === "save_note") {
+    if (!knowledgeConfigured) {
+      return "知識庫還沒設定好（沒接 MyWiki 或 Obsidian），請告知使用者稍後再試。";
     }
-    const r = await sendToWiki({ title: input.title, text: input.text });
-    return `已送進 MyWiki 知識庫（標題：${r.title}），系統正在背景抽取實體與決策頁，幾十秒後就能在 MyWiki 查到。`;
+    const r = await saveNote({ title: input.title, text: input.text });
+    const title = r?.title || input.title;
+    return `已存進知識庫（${knowledgeLabel}，標題：${title}），系統正在背景整理，稍後就能查到。`;
   }
-  if (name === "ask_wiki") {
-    if (!mywikiConfigured) {
-      return "知識庫（MyWiki）還沒設定好（缺 MYWIKI_BASE_URL / MYWIKI_API_KEY），請告知使用者稍後再試。";
+  if (name === "search_notes") {
+    if (!knowledgeConfigured) {
+      return "知識庫還沒設定好（沒接 MyWiki 或 Obsidian），請告知使用者稍後再試。";
     }
-    const r = await askWiki(input.question);
+    if (!knowledgeCanSearch) {
+      return `目前的知識庫（${knowledgeLabel}）只支援存筆記、還不能查詢，請告知使用者。`;
+    }
+    const r = await searchNotes(input.question);
     const sources = (r.citations || [])
       .map((c) => `[${c.n}]《${c.title}》${c.page ? ` 第${c.page}頁` : ""}`)
       .join("、");
-    return `MyWiki 的回答：\n${r.answer}\n\n來源：${sources || "（沒有檢索到來源）"}\n（回覆 ${ownerName()} 時保留重點與關鍵來源，不用全文照貼）`;
+    return `知識庫（${knowledgeLabel}）的回答：\n${r.answer}\n\n來源：${sources || "（沒有檢索到來源）"}\n（回覆 ${ownerName()} 時保留重點與關鍵來源，不用全文照貼）`;
   }
 
   // ── 待辦清單 ───────────────────────────────────────────────

@@ -110,7 +110,7 @@ npm run dev
 3. 重啟後開 `https://你的網域/setup/connectome?key=你的SETUP_KEY` 驗證連線 → 顯示你的聯絡人數就成功了。
 
 ### 5c. 其他連接器（選用）
-- **MyWiki（決策日誌 / 知識庫）**：設 `MYWIKI_BASE_URL`、`MYWIKI_API_KEY`。
+- **知識庫（決策日誌，二選一）**：MyWiki 設 `MYWIKI_BASE_URL`、`MYWIKI_API_KEY`（capture + 查詢）；Obsidian 規劃中（待同步後端拍板）。要強制指定用哪個設 `KNOWLEDGE_PROVIDER`（`mywiki` / `obsidian`），不設則自動挑有設好的那個。
 - **OpenAI（語音轉文字）**：設 `OPENAI_API_KEY`，LINE 語音訊息會自動轉文字。
 - **iCal**：`ICAL_FEED_URL` 設 iCloud/Apple 公開 .ics 網址，晨報/週回顧會合併。
 

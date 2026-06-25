@@ -24,9 +24,10 @@
    保留 Connectome，但上層只依賴抽象介面（findPerson / createPerson / logInteraction…），
    Connectome 是其中一個實作。未來要換別的 CRM 不動上層。
 
-4. **知識庫（MyWiki）預設關閉**
-   MyWiki 還不夠成熟、不對外綁。沒設 `MYWIKI_*` 時：
-   `log_decision` / `ask_wiki` 工具不註冊、system prompt 不提知識庫、記憶路由自動從四路降成三路。
+4. **知識庫＝可插拔 provider，二選一，預設關閉**（M7）
+   `knowledge.js` 抽象層，provider 二選一：`mywiki`（capture+query）/ `obsidian`（capture，規劃中）/ none。
+   工具名中性化為 `save_note` / `search_notes`。兩個 provider 的環境變數都沒設時：
+   工具不註冊、system prompt 不提知識庫、記憶路由自動降路。provider 不支援查詢時 `search_notes` 也不註冊。
 
 ---
 
@@ -87,13 +88,13 @@
   - [x] `ONBOARDING.md`：「從零部署你自己的助理」逐步（Step 1 拿 LINE+Anthropic 金鑰 → 2 部署+env → 3 接 webhook → 4 改名換口吻 → 5 連接器 Google/Connectome/其他 → 6 推播），含常見問題 + 環境變數總覽表。對齊實際 env 與 setup 路由。
   - [x] README 連到 ONBOARDING。
 
-- [ ] **M7 — 知識庫 provider 化 + Obsidian capture**（規劃中，先別動手；等「同步後端」拍板再開工）
-  - **provider 抽象** `knowledge.js`（複用 contacts adapter 模式）：`PROVIDERS = { mywiki（capture+query）, obsidian（capture；query 之後）, none（預設關閉） }`，用 env `KNOWLEDGE_PROVIDER` 選。上層工具/prompt 只依賴介面。
-  - **二選一（已拍板）**：每個部署同時只接一個知識庫。偵測哪個 provider 的環境變數有填就用哪個；兩個都填時用 `KNOWLEDGE_PROVIDER` 決勝。v1 不支援「同時接兩個」（之後真有需求再擴充 capture 寫兩邊 / query 問兩邊）。設定頁 MyWiki 與 Obsidian 各一張卡，呈現為「擇一連結」。
-  - **工具改名（通用化，已拍板）**：`log_decision` → **`save_note`**、`ask_wiki` → **`search_notes`**。provider 不支援 query 時 `search_notes` 不註冊；system prompt 那塊從「決策日誌」泛化成「筆記/知識捕捉」。MyWiki 實作仍可把內容整理成它的決策格式。
-  - **Obsidian provider = 同步後端 + capture**：因碰不到本機 Obsidian，須透過 vault 同步的雲端讀寫 `.md`。後端選項：Google Drive（傾向，複用既有 OAuth + 加 Drive scope）/ GitHub（Obsidian Git）/ Dropbox。⏳ **待 Casper 拍板**。
-  - **capture 細節待定**：一則一檔 vs append 進當日 daily note、放哪個資料夾（如 `Inbox/`）、要不要 frontmatter（date/source:LINE/tags）、檔名規則。
-  - **分段**：v1 只做 capture（最通用：LINE → markdown 進 vault）；v2 才做 query（讀 vault md 餵 Claude，比 MyWiki RAG 陽春）。MyWiki 的抽實體/衝突偵測維持 MyWiki 專屬，不移植。
+- [~] **M7 — 知識庫 provider 化 + Obsidian capture**（核心已完成；Obsidian provider 卡在同步後端未拍板）
+  - [x] **provider 抽象** `knowledge.js`（複用 contacts adapter 模式）：`PROVIDERS = { mywiki（capture+query）, obsidian（capture；query 之後） }` + none。env `KNOWLEDGE_PROVIDER` 明指優先、否則自動挑第一個設好的（mywiki 優先）。導出 `knowledgeProvider` / `knowledgeConfigured` / `knowledgeCanSearch` / `knowledgeLabel` / `saveNote` / `searchNotes`。上層只依賴此介面。
+  - [x] **二選一**：偵測哪個 provider 的環境變數有填就用哪個；都填時 `KNOWLEDGE_PROVIDER` 決勝；指定但沒設好則自動降級到另一個或 none。設定頁 MyWiki 與 Obsidian 各一張卡（Obsidian 標「規劃中」）。
+  - [x] **工具改名**：`log_decision` → `save_note`、`ask_wiki` → `search_notes`（assistant.js TOOL_CAPABILITY `knowledge`、runTool、buildTools；system-prompt.js `cap_knowledge` 區塊 + 路由 + 多模態；index.js /help）。provider 不支援查詢時 `buildTools` 不暴露 `search_notes`、prompt 那段改說「只能存、不能查」。煙霧測試：none=0 工具、mywiki=save+search、obsidian 強制但未設→降回 none。
+  - [ ] **Obsidian provider = 同步後端 + capture**（`obsidian.js` 目前是骨架，`obsidianConfigured=false`）：因碰不到本機 Obsidian，須透過 vault 同步的雲端讀寫 `.md`。後端選項：Google Drive（傾向，複用既有 OAuth + 加 Drive scope）/ GitHub（Obsidian Git）/ Dropbox。**2026-06-25 Casper 決定：先不做 Obsidian**，保留骨架，等真有人要用再回來補（屆時定後端 → obsidian.js 補 saveToObsidian + obsidianConfigured + 連接器 requires env）。抽象層已預留，補上 provider 不動上層。
+  - [ ] **capture 細節待定**：一則一檔 vs append 進當日 daily note、放哪個資料夾（如 `Inbox/`）、要不要 frontmatter（date/source:LINE/tags）、檔名規則。
+  - **分段**：v1 只做 capture（最通用：LINE → markdown 進 vault）；v2 才做 query。MyWiki 的抽實體/衝突偵測維持 MyWiki 專屬，不移植。
 
 ---
 
@@ -108,6 +109,7 @@
 - 2026-06-24：M4.5 完成。connectors.js 連接器框架 + 設定頁「Connectors」區（Connectome/Google/MyWiki/OpenAI 卡片，顯示已連/未連與缺項、連結 setup 路由）。
 - 2026-06-24：M5 完成。/help 動態去品牌 + WCA 化、晨報暱稱問候、CASPER_LINE_USER_ID 訊息去個人化。實際啟動 server curl 測試通過。
 - 2026-06-24：M6 完成。ONBOARDING.md 部署指南 + README 連結。**框架化主線 M0–M6 全部完成。** 後續選做：連接器一鍵輸入憑證（secret 存 sheet 取捨）、設定頁主題可換、內部註解最後掃。
+- 2026-06-24：M7 核心完成。`knowledge.js` provider 抽象（mywiki/obsidian/none，二選一）、工具改名 save_note/search_notes、`cap_knowledge` 區塊、connectors 加 Obsidian 卡、.env.example/FEATURES/ONBOARDING 更新。`obsidian.js` 留骨架（obsidianConfigured=false），**Obsidian 實作待同步後端拍板**。三情境煙霧測試通過。
 - 2026-06-24：設定頁 hero 加「使用說明」CTA → 新 `/guide` 頁（renderGuidePage，6 步驟 onboarding 介紹頁，WCA 風，公開、帶 key 回設定頁）。curl round-trip 測試通過。
 </content>
 </invoke>

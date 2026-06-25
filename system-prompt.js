@@ -18,7 +18,7 @@ import { shortcutsPromptSection } from "./shortcuts.js";
 import { calendarConfigured } from "./calendar.js";
 import { memoryConfigured } from "./memory.js";
 import { contactsConfigured } from "./contacts.js";
-import { mywikiConfigured } from "./mywiki.js";
+import { knowledgeConfigured, knowledgeCanSearch, knowledgeLabel } from "./knowledge.js";
 import { todosConfigured } from "./todos.js";
 
 // 記憶路由鐵則：依「啟用了哪些記憶去處」動態生成（取代原本寫死的四路）。
@@ -26,7 +26,7 @@ function routingDefault() {
   const routes = [];
   if (contactsConfigured) routes.push("別人的資料（聯絡人、互動、關係）→ 人脈庫（Connectome）");
   if (memoryConfigured) routes.push("你自己（主人本人）的偏好習慣 → remember（長期記憶）");
-  if (mywikiConfigured) routes.push("決策與知識內容 → log_decision（知識庫）");
+  if (knowledgeConfigured) routes.push("決策與知識內容 → save_note（知識庫）");
   if (routes.length < 2) return ""; // 少於兩條沒有「分流」可言，不放這塊
   const owner = ownerName();
   return `🚦 記憶分流鐵則（最容易搞錯，務必分清）：
@@ -127,19 +127,22 @@ export const BLOCKS = [
   },
 
   {
-    key: "cap_wiki",
-    title: "能力：決策日誌／知識庫（log_decision / ask_wiki）",
-    enabled: () => mywikiConfigured,
+    key: "cap_knowledge",
+    title: "能力：決策日誌／知識庫（save_note / search_notes）",
+    enabled: () => knowledgeConfigured,
     def: () => {
       const owner = ownerName();
-      return `能力（決策日誌／知識庫）：你是 ${owner} 的「決策日誌＋個人知識庫」入口——
-  ・log_decision：${owner} 拍板一個決策、或丟值得進知識庫的重要內容（會議結論、策略想法）時，整理成結構化文字送進知識庫。
-  ・ask_wiki：${owner} 問「我當初為什麼決定…」「之前跟○○怎麼談的」這類要查自己過往知識／決策的問題時用，答案會附來源。
-- 觸發 log_decision：${owner} 說「我決定…」「拍板了…」「就這樣定了」，或明確要你「記進知識庫／wiki」。
+      const where = knowledgeLabel ? `（存到 ${knowledgeLabel}）` : "";
+      const searchLine = knowledgeCanSearch
+        ? `  ・search_notes：${owner} 問「我當初為什麼決定…」「之前跟○○怎麼談的」這類要查自己過往知識／決策的問題時用，答案會附來源。\n`
+        : `  ・（目前的知識庫只支援存筆記、還不能查詢；${owner} 問過往決策時，老實說目前查不了，請他直接到知識庫看。）\n`;
+      return `能力（決策日誌／知識庫）：你是 ${owner} 的「決策日誌＋個人知識庫」入口${where}——
+  ・save_note：${owner} 拍板一個決策、或丟值得進知識庫的重要內容（會議結論、策略想法）時，整理成結構化文字存進知識庫。
+${searchLine}- 觸發 save_note：${owner} 說「我決定…」「拍板了…」「就這樣定了」，或明確要你「記進知識庫／存筆記」。
 - 存之前先補脈絡：他只丟結論時，追問一兩個關鍵問題（為什麼這樣決定？有考慮別的選項嗎？），讓決策留得住「為什麼」。但他若說「直接存」或在趕時間，就照原話存。
 - 送出的 text 整理成：「# 決策：＜一句話標題＞／決策日期：YYYY-MM-DD／決策內容：…／為什麼：…／考慮過的替代方案：…／參與者：…」（有的欄位才寫）。
-- 知識庫背景處理（要幾十秒），工具回「processing」就算成功，回報「已送進知識庫，背景整理中」即可。
-- ⚠️ 特別注意：log_decision 常是一批任務的最後一步，最容易被跳過卻謊稱完成。送出前**務必真的呼叫 log_decision**，看到回傳才回報「已送進知識庫」；沒呼叫到就老實說「還沒送，我現在送」並立刻呼叫。`;
+- 知識庫可能在背景處理（要幾十秒），工具回傳成功就回報「已存進知識庫，背景整理中」即可。
+- ⚠️ 特別注意：save_note 常是一批任務的最後一步，最容易被跳過卻謊稱完成。送出前**務必真的呼叫 save_note**，看到回傳才回報「已存進知識庫」；沒呼叫到就老實說「還沒存，我現在存」並立刻呼叫。`;
     },
   },
 
@@ -171,7 +174,7 @@ export const BLOCKS = [
         : `- 收到名片時：仔細辨識欄位（姓名、公司、職稱、電話、email），逐欄列出回給使用者，讓他自己存。`;
       const board = (() => {
         const targets = [];
-        if (mywikiConfigured) targets.push("值得進知識庫的（會議結論、策略）→ log_decision");
+        if (knowledgeConfigured) targets.push("值得進知識庫的（會議結論、策略）→ save_note");
         const tail = targets.length
           ? `，然後問一句要不要存——${targets.join("；")}；他說不用就算了。`
           : "。";
@@ -189,8 +192,8 @@ ${board}
     title: "多模態：PDF 檔案",
     enabled: () => true,
     def: () => {
-      const store = mywikiConfigured
-        ? "- 摘要完問一句要不要把摘要存進知識庫（log_decision，title 用文件名）；他說不用就算了。"
+      const store = knowledgeConfigured
+        ? "- 摘要完問一句要不要把摘要存進知識庫（save_note，title 用文件名）；他說不用就算了。"
         : "";
       return `關於 PDF 檔案（使用者會直接傳檔）：
 - 收到 PDF：摘要重點（它在講什麼、關鍵數字、值得注意的條款或風險），手機好讀的精簡格式。

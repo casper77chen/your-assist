@@ -43,6 +43,7 @@ import { assistantName, ownerName } from "./profile.js";
 import { contactsConfigured } from "./contacts.js";
 import { todosConfigured } from "./todos.js";
 import { mywikiConfigured } from "./mywiki.js";
+import { knowledgeConfigured } from "./knowledge.js";
 import { checkDemoLimit, countDemoUse, demoLimitMessage, demoLimitOn } from "./demo-limit.js";
 import { renderSettingsPage, applySettings, renderGuidePage } from "./settings-page.js";
 
@@ -97,7 +98,7 @@ app.get("/help", (_req, res) => {
     sections.push(["長期記憶", ["記住你的偏好與習慣，越用越懂你"]]);
   if (todosConfigured)
     sections.push(["待辦", ["新增 / 列出 / 完成待辦（可帶到期日）"]]);
-  if (mywikiConfigured)
+  if (knowledgeConfigured)
     sections.push(["決策日誌 / 知識庫", ["記下決策＋為什麼，事後可問知識庫"]]);
   const multimodal = ["PDF 摘要（合約抓錢 / 期限 / 條款）", "白板 / 簡報照片整理重點"];
   if (transcribeConfigured) multimodal.push("語音訊息自動轉文字");
