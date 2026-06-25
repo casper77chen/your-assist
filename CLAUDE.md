@@ -14,6 +14,8 @@
 ```bash
 npx zeabur@latest deploy --project-id 6a3b2d2ce41f9f1d1930387e --service-id 6a3b2d35e41f9f1d19303880 --json
 ```
+> ⚠️ **`deploy` 完別急著 `service restart`。** 這個服務 `deploy` 後會自己滾新版（約 60–90 秒），直接 poll 對外網址等它更新即可。太早 restart 會撞到還在 build 的流程、bounce 到舊 pod，反而看起來像「沒更新」。只有「改環境變數」這種不會觸發重新部署的情況才需要手動 restart。
+
 部署後要在 Zeabur 設環境變數（至少 `LINE_CHANNEL_SECRET`/`LINE_CHANNEL_ACCESS_TOKEN`/`ANTHROPIC_API_KEY`/`ASSISTANT_NAME`/`OWNER_NAME`/`SETUP_KEY`）並綁網域，webhook 指向 `https://網域/webhook`。完整步驟見 [ONBOARDING.md](./ONBOARDING.md)。
 
 ## 核心設計
