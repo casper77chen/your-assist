@@ -396,6 +396,7 @@ ${cards}
 export function renderLandingPage() {
   const name = esc(assistantName());
   const repo = "https://github.com/casper77chen/your-assist";
+  const lineAdd = "https://lin.ee/Po1vjgV"; // 此 demo OA 的加好友連結
   return `<!doctype html><html lang="zh-Hant"><head>
 <meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
 <title>${name}・你的 LINE AI 助理</title>
@@ -431,7 +432,8 @@ section.card p{color:var(--line);font-size:14px;margin:0}
   <h1>從 77 助理，<br>到<span class="gold">你的</span>助理</h1>
   <p class="lead">一個可自架的個人 LINE AI 助理框架。連上行事曆、人脈、記憶、知識庫——越用越像你的分身。這裡是 <strong>${name}</strong>，框架的公開 demo。</p>
   <div class="ctas">
-    <a class="cta" href="/guide">使用說明 →</a>
+    <a class="cta" href="${lineAdd}">加 LINE 好友試聊 →</a>
+    <a class="cta ghost" href="/guide">使用說明</a>
     <a class="cta ghost" href="/help">能力一覽</a>
     <a class="cta ghost" href="${repo}">GitHub</a>
   </div>
