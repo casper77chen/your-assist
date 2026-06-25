@@ -45,7 +45,7 @@ import { todosConfigured } from "./todos.js";
 import { mywikiConfigured } from "./mywiki.js";
 import { knowledgeConfigured } from "./knowledge.js";
 import { checkDemoLimit, countDemoUse, demoLimitMessage, demoLimitOn } from "./demo-limit.js";
-import { renderSettingsPage, applySettings, renderGuidePage } from "./settings-page.js";
+import { renderSettingsPage, applySettings, renderGuidePage, renderLandingPage } from "./settings-page.js";
 
 const { MessagingApiClient } = messagingApi;
 
@@ -71,8 +71,10 @@ const client = new MessagingApiClient({ channelAccessToken });
 
 const app = express();
 
-// 健康檢查（Zeabur / 瀏覽器打開網域時會看到）
-app.get("/", (_req, res) => res.send(`${assistantName()} is alive 🤖`));
+// 根網址＝公開落地頁（WCA 風格 hero + 入口）
+app.get("/", (_req, res) => res.type("html").send(renderLandingPage()));
+// 純文字健康檢查（給 uptime 監控用，維持原本的 alive 字串）
+app.get("/healthz", (_req, res) => res.send(`${assistantName()} is alive 🤖`));
 
 // 77 能力一覽（手機書籤用；純資訊、不需 key）：/help
 app.get("/help", (_req, res) => {

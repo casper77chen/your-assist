@@ -391,6 +391,60 @@ ${cards}
 </body></html>`;
 }
 
+// 公開落地頁（根網址 /）：WCA 風格 hero + 標語 + 入口。
+// 取代原本根網址只回一行「is alive」純文字——那只是健康檢查，現移到 /healthz。
+export function renderLandingPage() {
+  const name = esc(assistantName());
+  const repo = "https://github.com/casper77chen/your-assist";
+  return `<!doctype html><html lang="zh-Hant"><head>
+<meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1">
+<title>${name}・你的 LINE AI 助理</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&family=Noto+Serif+TC:wght@700&family=Playfair+Display&display=swap" rel="stylesheet">
+<style>
+:root{--ink:#09182B;--gold:#C8A359;--gold100:#F0D695;--gold700:#9E7D3D;--white:#fff;--text:#E5E7EB;--line:#CBD5E1;--muted:#94A3B8;--border:rgba(200,163,89,.28);
+ --grad:linear-gradient(135deg,#F0D695 0%,#C8A359 50%,#9E7D3D 100%);color-scheme:dark}
+*{box-sizing:border-box}
+body{font-family:"Noto Sans TC",-apple-system,system-ui,sans-serif;font-size:16px;line-height:1.7;color:var(--text);
+ margin:0 auto;max-width:720px;padding:0 20px 72px;
+ background:radial-gradient(ellipse at top,rgba(240,214,149,.10) 0%,rgba(9,24,43,0) 55%),
+ repeating-linear-gradient(45deg,transparent 0,transparent 2px,rgba(200,163,89,.025) 2px,rgba(200,163,89,.025) 4px),var(--ink);
+ background-attachment:fixed}
+.hero{padding:72px 4px 24px}
+.eyebrow{font-family:"Playfair Display",serif;font-size:11px;letter-spacing:.24em;text-transform:uppercase;color:var(--gold);margin:0 0 14px}
+.hero h1{font-family:"Noto Serif TC",serif;font-weight:700;font-size:clamp(32px,7vw,52px);line-height:1.12;color:var(--white);margin:0 0 16px}
+.hero h1 .gold{background:var(--grad);-webkit-background-clip:text;background-clip:text;color:transparent}
+.hero .lead{color:var(--line);font-size:16.5px;margin:0;max-width:32em}
+.ctas{display:flex;flex-wrap:wrap;gap:12px;margin:26px 0 0}
+.cta{display:inline-block;font-size:15px;font-weight:600;letter-spacing:.04em;color:var(--ink);
+ background:var(--grad);padding:14px 26px;border-radius:8px;text-decoration:none;
+ box-shadow:0 0 0 1px rgba(200,163,89,.45),0 14px 40px rgba(200,163,89,.22)}
+.cta.ghost{background:transparent;color:var(--gold);border:1px solid var(--border);box-shadow:none}
+.cards{display:grid;gap:12px;margin:34px 0 0}
+section.card{border:1px solid var(--border);border-radius:8px;padding:18px 20px;background:rgba(9,24,43,.55)}
+section.card h2{font-family:"Noto Serif TC",serif;font-weight:700;font-size:18px;color:var(--white);margin:0 0 4px}
+section.card p{color:var(--line);font-size:14px;margin:0}
+.foot{color:var(--muted);font-size:12.5px;margin-top:30px}
+.foot a{color:var(--gold)}
+</style></head><body>
+<header class="hero">
+  <p class="eyebrow">Your Assistant</p>
+  <h1>從 77 助理，<br>到<span class="gold">你的</span>助理</h1>
+  <p class="lead">一個可自架的個人 LINE AI 助理框架。連上行事曆、人脈、記憶、知識庫——越用越像你的分身。這裡是 <strong>${name}</strong>，框架的公開 demo。</p>
+  <div class="ctas">
+    <a class="cta" href="/guide">使用說明 →</a>
+    <a class="cta ghost" href="/help">能力一覽</a>
+    <a class="cta ghost" href="${repo}">GitHub</a>
+  </div>
+</header>
+<div class="cards">
+  <section class="card"><h2>行程・人脈・記憶・待辦</h2><p>連 Google / Connectome，就能用 LINE 訂會議室、管人脈、記偏好、追待辦。</p></section>
+  <section class="card"><h2>決策日誌・知識庫</h2><p>可串接 MyWiki 或 Obsidian，把決策與重要知識留下來，事後查得到。</p></section>
+  <section class="card"><h2>全部可在網頁設定</h2><p>助理名、口吻、簡稱、每一段行為規則，都能在設定頁檢視 / 編輯 / 還原。</p></section>
+</div>
+<p class="foot">想自己擁有一個？看 <a href="/guide">使用說明</a> 或 <a href="${repo}">GitHub 原始碼</a>。</p>
+</body></html>`;
+}
+
 // 處理 POST：套用表單到 settings 覆寫。
 export async function applySettings(body = {}) {
   // 品牌 + 快捷：留空 = 還原（settings.setSetting 對空值會自動 reset）
